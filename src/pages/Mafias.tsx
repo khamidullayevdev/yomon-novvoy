@@ -32,7 +32,7 @@ const ROLE_COLORS: Record<string, { bg: string; text: string; border: string; la
   doctor:   { bg: "#5d80c5",  text: "#fff",     border: "#053ba8",  label: "Do'xtir",   photos: [doctor1, doctor2, doctor3] },
   sheriff:  { bg: "#bdb385",  text: "#fff",     border: "#b19a33",  label: "Sherif",    photos: [sherif1, sherif2, sherif3] },
   manyak:   { bg: "#755248",  text: "#fff",     border: "#200e00",  label: "Manyak",    photos: [manyak1, manyak2] },
-  civilian: { bg: "#fff",     text: "#111",     border: "#e5e7eb",  label: "Tinch aholi", photos: [human1, human2, human3, human4, human5, human6, human7, human8, human9, human10, human11] },
+  civilian: { bg: "#fff",     text: "#111",     border: "#7f7f7f",  label: "Tinch aholi", photos: [human1, human2, human3, human4, human5, human6, human7, human8, human9, human10, human11] },
 };
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -479,7 +479,7 @@ function Step3({
         <div className="fixed w-screen h-screen top-0 left-0 bg-gray-900"></div>
 
         <div className="min-h-screen flex items-center fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[10] justify-center animate-fadeIn">
-          <div className="text-center px-8">
+          <div className="text-center px-2">
             <div className="text-6xl mb-6 animate-pulse">🌙</div>
             <h2 className="text-white text-3xl font-black mb-3">O'yin boshlandi</h2>
             <p className="text-white/40 text-sm">Har bir o'yinchi rolingizni ko'ring</p>
@@ -587,6 +587,7 @@ function Step4({
 }) {
   const [modal, setModal] = useState<number | null>(null);
   const [endGameModal, setEndGameModal] = useState(false);
+  const [eliminatedPlayer, setEliminatedPlayer] = useState<GamePlayer | null>(null);
   const [revealedRoles, setRevealedRoles] = useState<Record<number, boolean>>({});
 
   const checkWin = useCallback((updatedPlayers: GamePlayer[]) => {
@@ -601,10 +602,15 @@ function Step4({
   }, [onWin]);
 
   const handleEliminate = (id: number) => {
-    onEliminate(id);
+    const p = players.find((x) => x.id === id);
+    if (p) setEliminatedPlayer(p);
     setModal(null);
-    const updated = players.map((p) => p.id === id ? { ...p, alive: false } : p);
-    checkWin(updated);
+    onEliminate(id);
+  };
+
+  const handleDismissEliminated = () => {
+    setEliminatedPlayer(null);
+    checkWin(players);
   };
 
   if (gameStartAnim) {
@@ -615,7 +621,7 @@ function Step4({
           <div className="text-center px-8">
             <div className="text-6xl mb-6">🌆</div>
             <h2 className="text-white text-3xl font-black mb-3">O'yin boshlandi</h2>
-            <p className="text-white/40 text-sm">Munozara boshlaning...</p>
+            <p className="text-white/40 text-sm">Muhokamani boshlang...</p>
           </div>
         </div>
       </>
@@ -799,6 +805,32 @@ function Step4({
           </button>
         </div>
       </Modal>
+
+      {/* Eliminated Player Role Modal */}
+      {eliminatedPlayer && (
+        <Modal open={!!eliminatedPlayer} onClose={handleDismissEliminated}>
+          <div className="text-center mb-6">
+            <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-4 border-gray-100 shadow-sm">
+              <img
+                src={ROLE_COLORS[eliminatedPlayer.role].photos[eliminatedPlayer.id % ROLE_COLORS[eliminatedPlayer.role].photos.length]}
+                alt={ROLE_COLORS[eliminatedPlayer.role].label}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <h3 className="text-gray-900 text-lg font-black mb-2">{eliminatedPlayer.id + 1}-o'yinchi</h3>
+            <p className="text-gray-500 text-sm">
+              U <span className="font-bold" style={{ color: ROLE_COLORS[eliminatedPlayer.role].border }}>{ROLE_COLORS[eliminatedPlayer.role].label}</span> edi!
+            </p>
+          </div>
+          <button
+            onClick={handleDismissEliminated}
+            className="w-full py-3 rounded-xl text-white text-sm font-bold transition-all active:scale-95"
+            style={{ backgroundColor: PRIMARY }}
+          >
+            Davom etish
+          </button>
+        </Modal>
+      )}
     </div>
   );
 }
@@ -930,7 +962,7 @@ export default function MafiaGame() {
   const handleRevealDone = useCallback(() => {
     setGameStartAnim(true);
     setStep(4);
-    setTimeout(() => setGameStartAnim(false), 3000);
+    setTimeout(() => setGameStartAnim(false), 4000);
   }, []);
 
   // ── Step 4 handlers

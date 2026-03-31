@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&display=swap');
 
 @theme {
   --color-gold: #fbbf24;
@@ -25,4 +26,52 @@
     50% { box-shadow: 0 0 0 10px rgba(251, 191, 36, 0); }
   }
 }
-
+ 
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+}
+ 
+@layer utilities {
+  /* ── Fade In ── */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fadeIn {
+    animation: fadeIn 0.35s ease both;
+  }
+ 
+  /* ── Slide Up ── */
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .animate-slideUp {
+    animation: slideUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+ 
+  /* ── Scale In ── */
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.93); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  .animate-scaleIn {
+    animation: scaleIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+ 
+  /* ── Smooth scroll ── */
+  html {
+    scroll-behavior: smooth;
+  }
+ 
+  /* ── No scrollbar ── */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  * {
+    scrollbar-width: none;
+  }
+}

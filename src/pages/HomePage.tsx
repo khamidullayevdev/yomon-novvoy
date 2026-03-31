@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import Mafias from "./Mafias";
 
 // ─── Words Data ───────────────────────────────────────────────────────────────
 const words = [
@@ -195,12 +196,12 @@ function AddPlayerModal({ onAdd, onClose }: AddPlayerModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center animate-fadeIn"
+      className="fixed inset-0 z-50 flex items-center justify-center animate-fadeIn"
       style={{ backgroundColor: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)" }}
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm mx-4 mb-8 bg-white border border-gray-200 rounded-2xl p-6 animate-slideUp shadow-xl"
+        className="w-full max-w-sm mx-4 bg-white border border-gray-200 rounded-2xl p-6 animate-slideUp shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <p className="text-gray-500 text-xs font-semibold uppercase tracking-[0.2em] mb-1">
@@ -305,7 +306,7 @@ function RevealCard({ player, isRevealed, onReveal }: RevealCardProps) {
 
             {player.isImposter && (
               <p className="text-red-500 text-xs text-center px-6 font-medium">
-                Sen yomon novvoysiz!
+                Sen yomon novvoysan!
               </p>
             )}
           </div>
@@ -317,6 +318,7 @@ function RevealCard({ player, isRevealed, onReveal }: RevealCardProps) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function HomePage() {
+  const [gameMode, setGameMode] = useState<"Novvoy xona" | "Mafialar">("Novvoy xona");
   const [phase, setPhase] = useState<GamePhase>("setup");
   const [playerNames, setPlayerNames] = useState<string[]>(["novvoy 1", "novvoy 2", "novvoy 3"]);
   const [showModal, setShowModal] = useState(false);
@@ -372,9 +374,50 @@ export default function HomePage() {
 
   // ── Setup Phase ──────────────────────────────────────────────────────────
   if (phase === "setup") {
+    if (gameMode === "Mafialar") {
+      return (
+        <div className="min-h-screen bg-gray-50 flex flex-col items-center">
+          <div className="w-full max-w-sm px-5 pt-10 pb-4 animate-fadeIn">
+            {/* Game Mode Switch */}
+            <div className="flex rounded-xl bg-gray-200 p-1 mb-8">
+              <button
+                onClick={() => setGameMode("Novvoy xona")}
+                className="flex-1 py-2 text-sm font-semibold rounded-lg text-gray-500 hover:text-black transition-colors"
+              >
+                Novvoy xona
+              </button>
+              <button
+                className="flex-1 py-2 text-sm font-semibold rounded-lg bg-white text-black shadow-sm"
+              >
+                Mafialar
+              </button>
+            </div>
+          </div>
+          <div className="w-full max-w-sm px-5 pb-4 animate-fadeIn">
+            <Mafias />
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen bg-gray-50 flex justify-center">
         <div className="w-full max-w-sm px-5 py-10 animate-fadeIn">
+          {/* Game Mode Switch */}
+          <div className="flex rounded-xl bg-gray-200 p-1 mb-8">
+            <button
+              className="flex-1 py-2 text-sm font-semibold rounded-lg bg-white text-black shadow-sm"
+            >
+              Novvoy xona
+            </button>
+            <button
+              onClick={() => setGameMode("Mafialar")}
+              className="flex-1 py-2 text-sm font-semibold rounded-lg text-gray-500 hover:text-black transition-colors"
+            >
+              Mafialar
+            </button>
+          </div>
+
           {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white border border-gray-200 text-3xl mb-5 shadow-sm">

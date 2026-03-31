@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@theme {
+  --color-gold: #fbbf24;
+
+  --animate-fadeIn: fadeIn 0.5s ease-out forwards;
+  --animate-slideUp: slideUp 0.5s ease-out forwards;
+  --animate-scaleIn: scaleIn 0.5s ease-out forwards;
+  --animate-pulse-gold: pulseGold 2s infinite;
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes pulseGold {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4); }
+    50% { box-shadow: 0 0 0 10px rgba(251, 191, 36, 0); }
+  }
+}
+

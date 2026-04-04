@@ -225,19 +225,49 @@ function PlayerCell({
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function Tezlash() {
-  const [phase, setPhase] = useState<"setup" | "game" | "finished">("setup");
-  const [minutes, setMinutes] = useState(5);
-  const [seconds, setSeconds] = useState(0);
-  const [playerNames, setPlayerNames] = useState(["Alibek", "Zulfiya", "Jasur"]);
+  const [phase, setPhase] = useState<"setup" | "game" | "finished">(() => {
+    return (localStorage.getItem('tezlash-phase') as any) || "setup";
+  });
+  const [minutes, setMinutes] = useState(() => {
+    const saved = localStorage.getItem('tezlash-minutes');
+    return saved !== null ? parseInt(saved, 10) : 5;
+  });
+  const [seconds, setSeconds] = useState(() => {
+    const saved = localStorage.getItem('tezlash-seconds');
+    return saved !== null ? parseInt(saved, 10) : 0;
+  });
+  const [playerNames, setPlayerNames] = useState<string[]>(() => {
+    const saved = localStorage.getItem('tezlash-players-names');
+    return saved ? JSON.parse(saved) : ["Alibek", "Zulfiya", "Jasur"];
+  });
   const [newName, setNewName] = useState("");
 
-  const [players, setPlayers] = useState<Player[]>([]);
-  // clockwiseOrder: array of player ids in clockwise perimeter order
-  const [clockwiseOrder, setClockwiseOrder] = useState<number[]>([]);
-  // turnIdx: index into clockwiseOrder
-  const [turnIdx, setTurnIdx] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const [players, setPlayers] = useState<Player[]>(() => {
+    const saved = localStorage.getItem('tezlash-players-state');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [clockwiseOrder, setClockwiseOrder] = useState<number[]>(() => {
+    const saved = localStorage.getItem('tezlash-order');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [turnIdx, setTurnIdx] = useState(() => {
+    const saved = localStorage.getItem('tezlash-turn');
+    return saved !== null ? parseInt(saved, 10) : 0;
+  });
+  const [isPaused, setIsPaused] = useState(() => {
+    const saved = localStorage.getItem('tezlash-paused');
+    return saved ? JSON.parse(saved) : false;
+  });
   const [showExitModal, setShowExitModal] = useState(false);
+
+  useEffect(() => { localStorage.setItem('tezlash-phase', phase); }, [phase]);
+  useEffect(() => { localStorage.setItem('tezlash-minutes', minutes.toString()); }, [minutes]);
+  useEffect(() => { localStorage.setItem('tezlash-seconds', seconds.toString()); }, [seconds]);
+  useEffect(() => { localStorage.setItem('tezlash-players-names', JSON.stringify(playerNames)); }, [playerNames]);
+  useEffect(() => { localStorage.setItem('tezlash-players-state', JSON.stringify(players)); }, [players]);
+  useEffect(() => { localStorage.setItem('tezlash-order', JSON.stringify(clockwiseOrder)); }, [clockwiseOrder]);
+  useEffect(() => { localStorage.setItem('tezlash-turn', turnIdx.toString()); }, [turnIdx]);
+  useEffect(() => { localStorage.setItem('tezlash-paused', JSON.stringify(isPaused)); }, [isPaused]);
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const turnIdxRef = useRef(0);
@@ -336,6 +366,18 @@ export default function Tezlash() {
     setPlayers([]);
     setClockwiseOrder([]);
     setTurnIdx(0);
+    setIsPaused(false);
+    localStorage.removeItem('tezlash-minutes');
+    localStorage.removeItem('tezlash-seconds');
+    localStorage.removeItem('tezlash-players-names');
+    localStorage.removeItem('tezlash-players-state');
+    localStorage.removeItem('tezlash-order');
+    localStorage.removeItem('tezlash-turn');
+    localStorage.removeItem('tezlash-phase');
+    localStorage.removeItem('tezlash-paused');
+    setMinutes(5);
+    setSeconds(0);
+    setPlayerNames(["Alibek", "Zulfiya", "Jasur"]);
   };
 
   const addPlayer = () => {
@@ -573,7 +615,7 @@ export default function Tezlash() {
           Tezlash
         </p>
         <div className="flex gap-2 pointer-events-auto">
-          <button onClick={() => setIsPaused((v) => !v)}
+          <button onClick={() => setIsPaused((v: boolean) => !v)}
             className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all"
             style={{
               background: isPaused ? "rgba(212,175,55,0.2)" : "rgba(255,255,255,0.07)",

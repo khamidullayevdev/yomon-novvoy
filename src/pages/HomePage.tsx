@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import Mafias from "./Mafias";
+import Tezlash from "./Tezlash";
 
 // ─── Words Data ───────────────────────────────────────────────────────────────
 const words = [
@@ -126,6 +127,7 @@ const words = [
 ];
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+type GameMode = "Novvoy xona" | "Mafialar" | "Tezlash";
 type GamePhase = "setup" | "revealing" | "finished";
 
 interface Player {
@@ -316,9 +318,64 @@ function RevealCard({ player, isRevealed, onReveal }: RevealCardProps) {
   );
 }
 
+interface ModesModalProps {
+  currentMode: GameMode;
+  onSelect: (mode: GameMode) => void;
+  onClose: () => void;
+}
+
+function ModesModal({ currentMode, onSelect, onClose }: ModesModalProps) {
+  const modes: GameMode[] = ["Novvoy xona", "Mafialar", "Tezlash"];
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center animate-fadeIn"
+      style={{ backgroundColor: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)" }}
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-sm mx-4 bg-white border border-gray-200 rounded-2xl p-6 animate-slideUp shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <p className="text-gray-500 text-xs font-semibold uppercase tracking-[0.2em] mb-1">
+          O'yin rejimi
+        </p>
+        <h3 className="text-black text-xl font-bold mb-6">Rejimni tanlang</h3>
+
+        <div className="flex flex-col gap-3">
+          {modes.map((mode) => (
+            <button
+              key={mode}
+              onClick={() => {
+                onSelect(mode);
+                onClose();
+              }}
+              className={`py-3 rounded-xl border text-sm font-semibold transition-all duration-200 ${
+                currentMode === mode
+                  ? "border-black bg-black text-white"
+                  : "border-gray-200 bg-white text-black hover:border-gray-300"
+              }`}
+            >
+              {mode}
+            </button>
+          ))}
+        </div>
+
+        <button
+          onClick={onClose}
+          className="w-full mt-4 py-3 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium hover:border-gray-300 transition-all duration-200"
+        >
+          Yopish
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function HomePage() {
-  const [gameMode, setGameMode] = useState<"Novvoy xona" | "Mafialar">("Novvoy xona");
+  const [gameMode, setGameMode] = useState<GameMode>("Novvoy xona");
+  const [showModesModal, setShowModesModal] = useState(false);
   const [phase, setPhase] = useState<GamePhase>("setup");
   const [playerNames, setPlayerNames] = useState<string[]>(["novvoy 1", "novvoy 2", "novvoy 3"]);
   const [showModal, setShowModal] = useState(false);
@@ -378,24 +435,50 @@ export default function HomePage() {
       return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center">
           <div className="w-full max-w-sm px-5 pt-10 pb-4 animate-fadeIn">
-            {/* Game Mode Switch */}
-            <div className="flex rounded-xl bg-gray-200 p-1 mb-8">
-              <button
-                onClick={() => setGameMode("Novvoy xona")}
-                className="flex-1 py-2 text-sm font-semibold rounded-lg text-gray-500 hover:text-black transition-colors"
-              >
-                Novvoy xona
-              </button>
-              <button
-                className="flex-1 py-2 text-sm font-semibold rounded-lg bg-white text-black shadow-sm"
-              >
-                Mafialar
-              </button>
-            </div>
+            {/* Game Mode Button */}
+            <button
+              onClick={() => setShowModesModal(true)}
+              className="w-full py-3 mb-8 rounded-xl border border-gray-200 bg-white text-black font-semibold shadow-sm hover:border-gray-300 transition-colors"
+            >
+              Rejim: {gameMode}
+            </button>
           </div>
           <div className="w-full max-w-sm px-5 pb-4 animate-fadeIn">
             <Mafias />
           </div>
+          {showModesModal && (
+            <ModesModal
+              currentMode={gameMode}
+              onSelect={setGameMode}
+              onClose={() => setShowModesModal(false)}
+            />
+          )}
+        </div>
+      );
+    }
+
+    if (gameMode === "Tezlash") {
+      return (
+        <div className="min-h-screen bg-gray-50 flex flex-col items-center">
+          <div className="w-full max-w-sm px-5 pt-10 pb-4 animate-fadeIn">
+            {/* Game Mode Button */}
+            <button
+              onClick={() => setShowModesModal(true)}
+              className="w-full py-3 mb-8 rounded-xl border border-gray-200 bg-white text-black font-semibold shadow-sm hover:border-gray-300 transition-colors"
+            >
+              Rejim: {gameMode}
+            </button>
+          </div>
+          <div className="w-full max-w-sm px-5 pb-4 animate-fadeIn">
+            <Tezlash />
+          </div>
+          {showModesModal && (
+            <ModesModal
+              currentMode={gameMode}
+              onSelect={setGameMode}
+              onClose={() => setShowModesModal(false)}
+            />
+          )}
         </div>
       );
     }
@@ -403,20 +486,13 @@ export default function HomePage() {
     return (
       <div className="min-h-screen bg-gray-50 flex justify-center">
         <div className="w-full max-w-sm px-5 py-10 animate-fadeIn">
-          {/* Game Mode Switch */}
-          <div className="flex rounded-xl bg-gray-200 p-1 mb-8">
-            <button
-              className="flex-1 py-2 text-sm font-semibold rounded-lg bg-white text-black shadow-sm"
-            >
-              Novvoy xona
-            </button>
-            <button
-              onClick={() => setGameMode("Mafialar")}
-              className="flex-1 py-2 text-sm font-semibold rounded-lg text-gray-500 hover:text-black transition-colors"
-            >
-              Mafialar
-            </button>
-          </div>
+          {/* Game Mode Button */}
+          <button
+            onClick={() => setShowModesModal(true)}
+            className="w-full py-3 mb-8 rounded-xl border border-gray-200 bg-white text-black font-semibold shadow-sm hover:border-gray-300 transition-colors"
+          >
+            Rejim: {gameMode}
+          </button>
 
           {/* Header */}
           <div className="text-center mb-8">
@@ -487,6 +563,13 @@ export default function HomePage() {
 
         {showModal && (
           <AddPlayerModal onAdd={handleAddPlayer} onClose={() => setShowModal(false)} />
+        )}
+        {showModesModal && (
+          <ModesModal
+            currentMode={gameMode}
+            onSelect={setGameMode}
+            onClose={() => setShowModesModal(false)}
+          />
         )}
       </div>
     );
